@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Routine Tracker & Analytics</title>
+    <style>
+        :root {
+            --bg-color: #0a0a16;
+            --panel-bg: rgba(16, 16, 36, 0.85);
+            --neon-cyan: #00f3ff;
+            --neon-purple: #9d4edd;
+            --neon-pink: #ff007f;
+            --neon-green: #39ff14;
+            --text-main: #ffffff;
+            --text-muted: #8a8a9e;
+            --border-color: rgba(0, 243, 255, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* --- Live Neon Background --- */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #141026 0%, #05050c 100%);
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -10%;
+            right: -10%;
+            animation: floatGlow 15s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.12) 0%, rgba(0,0,0,0) 70%);
+            bottom: -10%;
+            left: -10%;
+            animation: floatGlow 12s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.2); }
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            gap: 20px;
+        }
+
+        /* Live Date Widget */
+        .date-widget {
+            background: var(--panel-bg);
+            padding: 16px 28px;
+            border-radius: 12px;
+            border-left: 4px solid var(--neon-cyan);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+            min-width: 260px;
+        }
+
+        .date-widget .time {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+        }
+
+        .date-widget .full-date {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* HIGH VISIBILITY COMPLETION PANEL */
+        .progress-panel {
+            display: flex;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 16px 32px;
+            border-radius: 16px;
+            border: 1px solid var(--neon-cyan);
+            backdrop-filter: blur(10px);
+            gap: 24px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            min-width: 320px;
+        }
+
+        .progress-display {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            background: conic-gradient(var(--neon-cyan) 0deg, rgba(255,255,255,0.05) 0deg);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transition: background 0.4s ease;
+        }
+
+        .progress-display::before {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: #0d0d21;
+            border-radius: 50%;
+        }
+
+        .progress-value {
+            position: relative;
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            z-index: 5;
+        }
+
+        .progress-info h3 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--neon-cyan);
+            margin-bottom: 4px;
+        }
+
+        .progress-info p {
+            font-size: 1rem;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Motivational Quote Box */
+        .motivation-panel {
+            text-align: right;
+            max-width: 30%;
+            min-width: 250px;
+        }
+
+        .motivation-panel h1 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .motivation-panel p {
+            font-style: italic;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        /* Control Panel Deck */
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            flex-grow: 1;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex-grow: 1;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn {
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 0 24px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+
+        .btn-history {
+            background: transparent;
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .btn-history:hover {
+            background: var(--neon-pink);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* --- Main Matrix Grid Table --- */
+        .table-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 1350px;
+        }
+
+        th, td {
+            padding: 14px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            background: rgba(5, 5, 12, 0.8);
+            color: var(--neon-cyan);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+        }
+
+        th.task-col, td.task-col {
+            width: 260px;
+            padding-left: 24px;
+            position: sticky;
+            left: 0;
+            background: #0f0f23;
+            z-index: 2;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .task-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 4px;
+        }
+
+        .btn-delete:hover { color: var(--neon-pink); }
+
+        .checkbox-cell { text-align: center; }
+
+        .custom-checkbox {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+
+        .custom-checkbox input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+        .checkmark {
+            position: absolute;
+            top: 0; left: 0;
+            height: 20px; width: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .custom-checkbox:hover input ~ .checkmark {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
+        }
+
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 12px var(--neon-cyan);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px; top: 2px;
+            width: 5px; height: 10px;
+            border: solid #000;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-checkbox input:checked ~ .checkmark:after { display: block; }
+
+        th:nth-child(even), td:nth-child(even):not(.task-col) {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        /* --- History Modal Popup --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 12, 0.9);
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-card {
+            background: #101026;
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 40px rgba(255, 0, 127, 0.25);
+            width: 90%; max-width: 500px;
+            border-radius: 16px; padding: 2rem;
+        }
+
+        .modal-title {
+            color: var(--neon-pink);
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 0, 127, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .history-list { max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem; }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 3px solid var(--neon-purple);
+        }
+
+        .history-month { font-weight: 600; }
+        .history-pct { color: var(--neon-green); font-weight: 700; }
+
+        .btn-close-modal {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%; padding: 10px; border-radius: 8px;
+            color: white; cursor: pointer; text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .btn-close-modal:hover { background: rgba(255,255,255,0.15); }
+        ::-webkit-scrollbar { width: 6px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.2); border-radius: 4px; } 
+    /* Futuristic Bottom-Left Signature Credit */
+        .system-credit {
+            position: fixed;
+            bottom: 20px;
+            left: 24px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            background: rgba(16, 16, 36, 0.6);
+            padding: 8px 16px;
+            border-radius: 6px;
+            border-left: 3px solid var(--neon-cyan);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+            pointer-events: none;
+        }
+
+        .system-credit strong {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            font-weight: 800;
+        }</style>
+</head>
+<body>
+
+    <div class="bg-animation">
+        <div class="bg-glow"></div>
+        <div class="bg-glow-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="date-widget">
+                <div class="time" id="live-time">00:00:00</div>
+                <div class="full-date" id="live-date">System Booting...</div>
+            </div>
+
+            <div class="progress-panel">
+                <div class="progress-display" id="progress-pie">
+                    <div class="progress-value" id="progress-percentage">0%</div>
+                </div>
+                <div class="progress-info">
+                    <h3>Current Cycle</h3>
+                    <p id="progress-fraction">0 / 0 Done</p>
+                </div>
+            </div>
+            
+            <div class="motivation-panel">
+                <h1 id="quote-title">Core Objective</h1>
+                <p id="quote-text">"The future depends on what you do today."</p>
+            </div>
+        </header>
+
+        <section class="control-panel">
+            <div class="input-group">
+                <input type="text" id="task-input" placeholder="Initialize new routine protocol..." autocomplete="off">
+                <button class="btn btn-add" id="add-task-btn">Deploy Task</button>
+            </div>
+            <button class="btn btn-history" id="open-history-btn">📊 System Log</button>
+        </section>
+
+        <section class="table-container">
+            <table>
+                <thead>
+                    <tr id="table-header">
+                        <th class="task-col">Routine Protocol</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <div class="modal-overlay" id="history-modal">
+        <div class="modal-card">
+            <h2 class="modal-title">Archived Core Log</h2>
+            <div class="history-list" id="history-items-container"></div>
+            <button class="btn btn-add" id="archive-month-btn" style="margin-bottom: 12px; width:100%; font-size:0.75rem;">Archive Current Month Record</button>
+            <button class="btn-close-modal" id="close-history-btn">Return to Matrix</button>
+        </div>
+    </div>
+
+    <script>
+        // HARD SYSTEM RESET FOR DATA PURITY (Deletes old corrupted versions)
+        try {
+            let existingHistory = localStorage.getItem('routine_history');
+            if (existingHistory && existingHistory.includes('January 2026')) {
+                localStorage.removeItem('routine_history');
+            }
+        } catch(e) { console.log("Cache completely cleared."); }
+
+        const motivationalQuotes = [
+            { title: "Protocol: Excellence", text: "“We are what we repeatedly do. Excellence, then, is not an act, but a habit.”" },
+            { title: "System Core Directive", text: "“Discipline is the bridge between goals and accomplishment.”" },
+            { title: "Performance Module", text: "“Small daily improvements over time lead to stunning results.”" }
+        ];
+
+        let tasks = JSON.parse(localStorage.getItem('routine_tasks')) || [
+            { id: 1, name: "Cybernetic Coding Session", progress: Array(30).fill(false) },
+            { id: 2, name: "Physical Optimization (Gym)", progress: Array(30).fill(false) },
+            { id: 3, name: "Neural Reboot (Meditation)", progress: Array(30).fill(false) }
+        ];
+
+        let historyLog = JSON.parse(localStorage.getItem('routine_history')) || [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initClock();
+            initQuotes();
+            renderGridHeaders();
+            renderTableRows();
+            calculateCompletion();
+
+            document.getElementById('add-task-btn').addEventListener('click', handleAddTask);
+            document.getElementById('task-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAddTask(); });
+            
+            const modal = document.getElementById('history-modal');
+            document.getElementById('open-history-btn').addEventListener('click', () => { buildHistoryList(); modal.classList.add('active'); });
+            document.getElementById('close-history-btn').addEventListener('click', () => { modal.classList.remove('active'); });
+            document.getElementById('archive-month-btn').addEventListener('click', archiveCurrentMonth);
+        });
+
+        function initClock() {
+            const timeEl = document.getElementById('live-time');
+            const dateEl = document.getElementById('live-date');
+            function updateTime() {
+                const now = new Date();
+                timeEl.textContent = now.toTimeString().split(' ')[0];
+                dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function initQuotes() {
+            const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+            document.getElementById('quote-title').textContent = randomQuote.title;
+            document.getElementById('quote-text').textContent = randomQuote.text;
+        }
+
+        function renderGridHeaders() {
+            const headerRow = document.getElementById('table-header');
+            for (let i = 1; i <= 30; i++) {
+                const th = document.createElement('th');
+                th.className = 'checkbox-cell';
+                th.textContent = `D${i < 10 ? '0' + i : i}`;
+                headerRow.appendChild(th);
+            }
+        }
+
+        function renderTableRows() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if(tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="31" style="text-align: center; color: var(--text-muted); padding: 40px;">No routines deployed. Add a task to begin.</td></tr>`;
+                return;
+            }
+
+            tasks.forEach((task, taskIndex) => {
+                const tr = document.createElement('tr');
+                const tdTask = document.createElement('td');
+                tdTask.className = 'task-col';
+                tdTask.innerHTML = `
+                    <div class="task-wrapper">
+                        <span class="task-name" title="${task.name}">${task.name}</span>
+                        <button class="btn-delete" onclick="deleteTask(${task.id})">✕</button>
+                    </div>
+                `;
+                tr.appendChild(tdTask);
+
+                for (let dayIndex = 0; dayIndex < 30; dayIndex++) {
+                    const tdCheck = document.createElement('td');
+                    tdCheck.className = 'checkbox-cell';
+                    const isChecked = task.progress[dayIndex] ? 'checked' : '';
+                    tdCheck.innerHTML = `
+                        <label class="custom-checkbox">
+                            <input type="checkbox" ${isChecked} onchange="toggleDay(${taskIndex}, ${dayIndex})">
+                            <span class="checkmark"></span>
+                        </label>
+                    `;
+                    tr.appendChild(tdCheck);
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        function calculateCompletion() {
+            if (tasks.length === 0) {
+                updateProgressUI(0, 0, 0);
+                return;
+            }
+            const totalPossibleTicks = tasks.length * 30;
+            let actualTicks = 0;
+            tasks.forEach(task => task.progress.forEach(day => { if (day) actualTicks++; }));
+            const percentage = Math.round((actualTicks / totalPossibleTicks) * 100);
+            updateProgressUI(percentage, actualTicks, totalPossibleTicks);
+        }
+
+        // FIXED: Complete CSS-conic chart injection for flawless display rendering
+        function updateProgressUI(pct, completed, total) {
+            document.getElementById('progress-percentage').textContent = `${pct}%`;
+            document.getElementById('progress-fraction').textContent = `${completed} / ${total} Ticks`;
+            
+            const degree = (pct / 100) * 360;
+            document.getElementById('progress-pie').style.background = `conic-gradient(var(--neon-cyan) ${degree}deg, rgba(255,255,255,0.05) ${degree}deg)`;
+        }
+
+        function handleAddTask() {
+            const input = document.getElementById('task-input');
+            const taskName = input.value.trim();
+            if (!taskName) return;
+            tasks.push({ id: Date.now(), name: taskName, progress: Array(30).fill(false) });
+            saveData(); renderTableRows(); calculateCompletion();
+            input.value = '';
+        }
+
+        window.deleteTask = function(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveData(); renderTableRows(); calculateCompletion();
+        }
+
+        window.toggleDay = function(taskIndex, dayIndex) {
+            tasks[taskIndex].progress[dayIndex] = !tasks[taskIndex].progress[dayIndex];
+            saveData(); calculateCompletion();
+        }
+
+        function buildHistoryList() {
+            const container = document.getElementById('history-items-container');
+            container.innerHTML = '';
+            if (historyLog.length === 0) {
+                container.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding: 30px; font-style: italic;">Log empty. No records archived yet.</div>`;
+                return;
+            }
+            [...historyLog].reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `<span class="history-month">${item.period}</span><span class="history-pct">${item.score}</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        function archiveCurrentMonth() {
+            if (tasks.length === 0) return alert("Deploy tasks and complete metrics before archiving.");
+            const totalPossibleTicks = tasks.length * 30;
+            let actualTicks = 0;
+            tasks.forEach(task => task.progress.forEach(day => { if(day) actualTicks++; }));
+            const finalPct = Math.round((actualTicks / totalPossibleTicks) * 100) + "%";
+            const currentPeriod = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const existIndex = historyLog.findIndex(item => item.period === currentPeriod);
+            if (existIndex !== -1) { historyLog[existIndex].score = finalPct; } 
+            else { historyLog.push({ period: currentPeriod, score: finalPct }); }
+
+            localStorage.setItem('routine_history', JSON.stringify(historyLog));
+            buildHistoryList();
+            alert(`Month compiled! Current score of ${finalPct} has been archived successfully into the System Log.`);
+        }
+
+        function saveData() { localStorage.setItem('routine_tasks', JSON.stringify(tasks)); }
+    </script>
+<div class="system-credit"> By: <strong>Khan's</strong></div>
+</body>
+</html>
